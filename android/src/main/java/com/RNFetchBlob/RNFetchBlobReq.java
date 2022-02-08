@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.HashMap;
 
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import 	javax.net.ssl.SSLSocketFactory;
@@ -117,7 +118,7 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
     OkHttpClient client;
 
     public RNFetchBlobReq(ReadableMap options, String taskId, String method, String url, ReadableMap headers, String body, ReadableArray arrayBody, OkHttpClient client, final Callback callback) {
-        this.method = method.toUpperCase();
+        this.method = method.toUpperCase(Locale.ROOT);
         this.options = new RNFetchBlobConfig(options);
         this.taskId = taskId;
         this.url = url;
@@ -300,14 +301,14 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
                             responseFormat = ResponseFormat.UTF8;
                     }
                     else {
-                        builder.header(key.toLowerCase(), value);
-                        mheaders.put(key.toLowerCase(), value);
+                        builder.header(key.toLowerCase(Locale.ROOT), value);
+                        mheaders.put(key.toLowerCase(Locale.ROOT), value);
                     }
                 }
             }
 
             if(method.equalsIgnoreCase("post") || method.equalsIgnoreCase("put") || method.equalsIgnoreCase("patch")) {
-                String cType = getHeaderIgnoreCases(mheaders, "Content-Type").toLowerCase();
+                String cType = getHeaderIgnoreCases(mheaders, "Content-Type").toLowerCase(Locale.ROOT);
 
                 if(rawRequestBodyArray != null) {
                     requestType = RequestType.Form;
@@ -323,7 +324,7 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
                             || rawRequestBody.startsWith(RNFetchBlobConst.CONTENT_PREFIX)) {
                         requestType = RequestType.SingleFile;
                     }
-                    else if (cType.toLowerCase().contains(";base64") || cType.toLowerCase().startsWith("application/octet")) {
+                    else if (cType.toLowerCase(Locale.ROOT).contains(";base64") || cType.toLowerCase(Locale.ROOT).startsWith("application/octet")) {
                         cType = cType.replace(";base64","").replace(";BASE64","");
                         if(mheaders.containsKey("content-type"))
                             mheaders.put("content-type", cType);
@@ -591,29 +592,7 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
 //                    ignored.printStackTrace();
                 }
 
-                RNFetchBlobFileResp rnFetchBlobFileResp;
-
-                try {
-                    rnFetchBlobFileResp = (RNFetchBlobFileResp) responseBody;
-                } catch (ClassCastException ex) {
-                    // unexpected response type
-                    if (responseBody != null) {
-                        String responseBodyString = null;
-                        try {
-                            boolean isBufferDataExists = responseBody.source().buffer().size() > 0;
-                            boolean isContentExists = responseBody.contentLength() > 0;
-                            if (isBufferDataExists && isContentExists) {
-                                responseBodyString = responseBody.string();
-                            }
-                        } catch(IOException exception) {
-                            exception.printStackTrace();
-                        }
-                        callback.invoke("Unexpected FileStorage response file: " + responseBodyString, null);
-                    } else {
-                        callback.invoke("Unexpected FileStorage response with no file.", null);
-                    }
-                    return;
-                }
+                RNFetchBlobFileResp rnFetchBlobFileResp = (RNFetchBlobFileResp) responseBody;
 
                 if(rnFetchBlobFileResp != null && !rnFetchBlobFileResp.isDownloadComplete()){
                     callback.invoke("Download interrupted.", null);
@@ -708,7 +687,7 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
         boolean isCustomBinary = false;
         if(options.binaryContentTypes != null) {
             for(int i = 0; i< options.binaryContentTypes.size();i++) {
-                if(ctype.toLowerCase().contains(options.binaryContentTypes.getString(i).toLowerCase())) {
+                if(ctype.toLowerCase(Locale.ROOT).contains(options.binaryContentTypes.getString(i).toLowerCase(Locale.ROOT))) {
                     isCustomBinary = true;
                     break;
                 }
@@ -720,13 +699,13 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
     private String getHeaderIgnoreCases(Headers headers, String field) {
         String val = headers.get(field);
         if(val != null) return val;
-        return headers.get(field.toLowerCase()) == null ? "" : headers.get(field.toLowerCase());
+        return headers.get(field.toLowerCase(Locale.ROOT)) == null ? "" : headers.get(field.toLowerCase(Locale.ROOT));
     }
 
     private String getHeaderIgnoreCases(HashMap<String,String> headers, String field) {
         String val = headers.get(field);
         if(val != null) return val;
-        String lowerCasedValue = headers.get(field.toLowerCase());
+        String lowerCasedValue = headers.get(field.toLowerCase(Locale.ROOT));
         return lowerCasedValue == null ? "" : lowerCasedValue;
     }
 

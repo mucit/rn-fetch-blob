@@ -3,6 +3,9 @@ package com.RNFetchBlob;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 
+import java.util.Locale;
+
+
 class RNFetchBlobConfig {
 
     public Boolean fileCache;
@@ -33,7 +36,7 @@ class RNFetchBlobConfig {
         }
         if(options.hasKey("binaryContentTypes"))
             this.binaryContentTypes = options.getArray("binaryContentTypes");
-        if(this.path != null && path.toLowerCase().contains("?append=true")) {
+        if(this.path != null && path.toLowerCase(Locale.ROOT).contains("?append=true")) {
             this.overwrite = false;
         }
         if(options.hasKey("overwrite"))
